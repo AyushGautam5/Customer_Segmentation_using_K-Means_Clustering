@@ -157,4 +157,3 @@ with col2:
     st.pyplot(fig)
 
 st.divider()
-st.caption()
