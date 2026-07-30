@@ -1,23 +1,3 @@
-"""
-Customer Segmentation - Streamlit App
---------------------------------------
-This app loads the K-Means model we already trained in the notebook
-(Customer_Segmentation_KMeans.ipynb) and lets anyone type in a customer's
-Annual Income and Spending Score to instantly see which customer segment
-they belong to.
-
-IMPORTANT: this app does NOT train a new model. It just re-uses the
-kmeans_model.pkl and scaler.pkl files that the notebook already saved.
-That's the whole point of saving a model -- train once, reuse many times.
-
-To run this app:
-    1. Make sure these 4 files are in the SAME folder:
-       app.py, kmeans_model.pkl, scaler.pkl, Mall_Customers.csv
-    2. Install the requirements:  pip install -r requirements.txt
-    3. From a terminal, in that folder, run:  streamlit run app.py
-    4. Your browser will open automatically at http://localhost:8501
-"""
-
 import pickle
 import pandas as pd
 import numpy as np
@@ -25,25 +5,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-# ---------------------------------------------------------------------------
 # Basic page setup
-# ---------------------------------------------------------------------------
 st.set_page_config(page_title="Customer Segmentation", page_icon="🛍️", layout="wide")
 
 st.title("🛍️ Customer Segmentation Explorer")
 st.write(
-    "This app uses a **K-Means clustering model** trained on 200 mall customers "
+    "This app uses a **K-Means clustering model** trained on mall customers data"
     "to group people into 5 spending 'segments'. Enter a customer's details on "
     "the left to see which segment they'd fall into."
 )
 
-
-# ---------------------------------------------------------------------------
 # Loading the saved model, scaler, and data
-# ---------------------------------------------------------------------------
-# @st.cache_resource tells Streamlit "only load this once, then remember it" --
-# without this, Streamlit would reload the model from disk on every single
-# interaction, which is slow and pointless since the model never changes.
 @st.cache_resource
 def load_model_and_scaler():
     with open("kmeans_model.pkl", "rb") as f:
@@ -72,11 +44,7 @@ except FileNotFoundError as e:
     st.stop()  # stops the app here so we don't crash further down
 
 
-# ---------------------------------------------------------------------------
 # Re-create the cluster labels + human-readable segment names
-# ---------------------------------------------------------------------------
-# We recompute this (instead of saving it separately) so the app always shows
-# names that are 100% consistent with the model file it's using.
 X = df[["Annual Income (k$)", "Spending Score (1-100)"]]
 X_scaled = scaler.transform(X)
 df["Cluster"] = kmeans.predict(X_scaled)
@@ -110,9 +78,7 @@ cluster_summary["Number of Customers"] = df["Cluster"].value_counts().sort_index
 cluster_summary["Segment Name"] = cluster_summary.apply(label_cluster, axis=1)
 
 
-# ---------------------------------------------------------------------------
 # Sidebar: let the user enter a new customer's details
-# ---------------------------------------------------------------------------
 st.sidebar.header("Enter a New Customer")
 
 income_input = st.sidebar.slider(
@@ -142,9 +108,7 @@ predicted_cluster = int(kmeans.predict(new_customer_scaled)[0])
 predicted_segment = cluster_summary.loc[predicted_cluster, "Segment Name"]
 
 
-# ---------------------------------------------------------------------------
 # Main panel: show the prediction + the chart + the summary table
-# ---------------------------------------------------------------------------
 col1, col2 = st.columns([1, 2])
 
 with col1:
@@ -194,7 +158,4 @@ with col2:
 
 st.divider()
 st.caption(
-    "This model was trained once in a Jupyter notebook (Customer_Segmentation_KMeans.ipynb) "
-    "using K-Means clustering, then saved to disk. This app simply loads that saved model "
-    "-- it never retrains anything."
 )
